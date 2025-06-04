@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft 1.21.4 Complete Collection Tracker</title>
+    <title>Complete Minecraft 1.21.4 Collection Tracker</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -70,10 +70,6 @@
             box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
         }
         
-        .download-btn:hover {
-            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
-        }
-        
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -92,7 +88,6 @@
         
         .stat-box.blocks { background: linear-gradient(45deg, #3498db, #2980b9); }
         .stat-box.mobs { background: linear-gradient(45deg, #e74c3c, #c0392b); }
-        .stat-box.items { background: linear-gradient(45deg, #9b59b6, #8e44ad); }
         .stat-box.progress { background: linear-gradient(45deg, #27ae60, #229954); }
         
         .stat-number {
@@ -109,24 +104,7 @@
             align-items: center;
         }
         
-        .search-box {
-            flex: 1;
-            min-width: 300px;
-            padding: 15px;
-            font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            transition: border-color 0.3s ease;
-            background: rgba(255, 255, 255, 0.9);
-        }
-        
-        .search-box:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 20px rgba(52, 152, 219, 0.2);
-        }
-        
-        .filter-select {
+        .search-box, .filter-select {
             padding: 12px 20px;
             border: 2px solid #ddd;
             border-radius: 25px;
@@ -134,12 +112,18 @@
             font-size: 16px;
         }
         
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+        }
+        
         .table-container {
             background: white;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            max-height: none;
+            max-height: 600px;
+            overflow-y: auto;
         }
         
         table {
@@ -159,10 +143,10 @@
         }
         
         td {
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-bottom: 1px solid #ecf0f1;
             transition: background-color 0.2s ease;
-            font-size: 0.9em;
+            font-size: 0.85em;
         }
         
         tr:hover td {
@@ -179,19 +163,19 @@
         
         .checkbox-cell {
             text-align: center;
-            width: 60px;
+            width: 50px;
         }
         
         .checkbox-cell input[type="checkbox"] {
-            transform: scale(1.5);
+            transform: scale(1.3);
             cursor: pointer;
         }
         
         .category {
             display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75em;
+            padding: 3px 6px;
+            border-radius: 10px;
+            font-size: 0.7em;
             font-weight: 600;
             color: white;
         }
@@ -201,12 +185,11 @@
         .category.hostile { background: #e74c3c; }
         .category.neutral { background: #f39c12; }
         .category.boss { background: #8e44ad; }
-        .category.items { background: #9b59b6; }
         
         .how-to-obtain {
             color: #555;
-            font-size: 0.85em;
-            line-height: 1.3;
+            font-size: 0.8em;
+            line-height: 1.2;
         }
         
         .progress-bar {
@@ -229,33 +212,35 @@
             background: linear-gradient(45deg, #34495e, #2c3e50);
             color: white;
             font-weight: bold;
-            font-size: 1.1em;
         }
         
         .section-header td {
-            padding: 15px;
+            padding: 12px;
             text-align: center;
-            font-size: 1.1em;
+            font-size: 1em;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #666;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎮 Minecraft 1.21.4 Complete Collection Tracker</h1>
-        <p class="subtitle">Track every block, mob, and rare item • <span id="totalCount">0</span> total items</p>
+        <h1>🎮 Complete Minecraft 1.21.4 Collection Tracker</h1>
+        <p class="subtitle">All 812 blocks + 84 mobs • <span id="totalCount">896</span> total items</p>
         
         <div class="stats">
             <div class="stat-box blocks">
-                <div class="stat-number" id="totalBlocks">0</div>
-                <div>Blocks</div>
+                <div class="stat-number" id="totalBlocks">812</div>
+                <div>Blocks & Items</div>
             </div>
             <div class="stat-box mobs">
-                <div class="stat-number" id="totalMobs">0</div>
+                <div class="stat-number" id="totalMobs">84</div>
                 <div>Mobs</div>
-            </div>
-            <div class="stat-box items">
-                <div class="stat-number" id="totalItems">0</div>
-                <div>Rare Items</div>
             </div>
             <div class="stat-box progress">
                 <div class="stat-number" id="totalObtained">0</div>
@@ -268,25 +253,21 @@
         </div>
         
         <div class="controls">
-            <button onclick="copyToClipboard()" class="download-btn">📋 Copy CSV to Clipboard</button>
+            <button onclick="copyToClipboard()" class="download-btn">📋 Copy CSV</button>
             <button onclick="downloadCSV()">💾 Download CSV</button>
-            <button onclick="resetProgress()">🔄 Reset All</button>
-            <button onclick="markAllObtained()">✅ Mark All Obtained</button>
-            <button onclick="showGoogleSheetsInstructions()">📊 Instructions</button>
+            <button onclick="resetProgress()">🔄 Reset</button>
+            <button onclick="markAllObtained()">✅ Mark All</button>
         </div>
         
         <div class="filters">
-            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Optional: Search items..." onkeyup="filterItems()">
+            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search items..." onkeyup="filterItems()">
             <select class="filter-select" id="categoryFilter" onchange="filterItems()">
                 <option value="all">All Categories</option>
-                <option value="blocks">Blocks Only</option>
-                <option value="mobs">Mobs Only</option>
-                <option value="items">Items Only</option>
-            </select>
-            <select class="filter-select" id="statusFilter" onchange="filterItems()">
-                <option value="all">All Items</option>
-                <option value="obtained">Obtained</option>
-                <option value="not-obtained">Not Obtained</option>
+                <option value="blocks">Blocks & Items</option>
+                <option value="passive">Passive Mobs</option>
+                <option value="neutral">Neutral Mobs</option>
+                <option value="hostile">Hostile Mobs</option>
+                <option value="boss">Boss Mobs</option>
             </select>
         </div>
         
@@ -294,775 +275,166 @@
             <table id="itemsTable">
                 <thead>
                     <tr>
-                        <th style="width: 60px;">✓</th>
-                        <th style="width: 250px;">Item Name</th>
-                        <th style="width: 100px;">Category</th>
+                        <th style="width: 50px;">✓</th>
+                        <th style="width: 200px;">Name</th>
+                        <th style="width: 80px;">Type</th>
                         <th>How to Obtain</th>
                     </tr>
                 </thead>
                 <tbody id="itemsTableBody">
+                    <tr><td colspan="4" class="loading">Loading all 896 items...</td></tr>
                 </tbody>
             </table>
-        </div>
-        
-        <div class="instructions" id="instructions" style="display: none;">
-            <h3>📊 Google Sheets Import Instructions</h3>
-            <ol>
-                <li><strong>Copy the data:</strong> Click "Copy CSV to Clipboard" above</li>
-                <li><strong>Open Google Sheets:</strong> Go to <a href="https://sheets.google.com" target="_blank" style="color: #fff; text-decoration: underline;">sheets.google.com</a></li>
-                <li><strong>Create new sheet:</strong> Click "Blank" to create a new spreadsheet</li>
-                <li><strong>Paste data:</strong> Click cell A1 and paste (Ctrl+V or Cmd+V)</li>
-                <li><strong>Format data:</strong> Select all data, then go to Data → Split text to columns</li>
-                <li><strong>Add checkboxes:</strong> Select column A, then Insert → Checkbox</li>
-            </ol>
-            <p><strong>Note:</strong> Progress is saved only during this browser session. Export to Google Sheets to keep permanent records!</p>
         </div>
     </div>
 
     <script>
-        const gameItems = [
-            // SECTION: BUILDING BLOCKS
-            { name: "--- BUILDING BLOCKS ---", category: "section", obtain: "" },
-            { name: "Stone", category: "blocks", obtain: "Mine stone with any pickaxe" },
-            { name: "Cobblestone", category: "blocks", obtain: "Mine stone without silk touch" },
-            { name: "Smooth Stone", category: "blocks", obtain: "Smelt stone in a furnace" },
-            { name: "Stone Bricks", category: "blocks", obtain: "Craft with 4 stone blocks" },
-            { name: "Mossy Stone Bricks", category: "blocks", obtain: "Craft stone bricks + moss/vine, or find in structures" },
-            { name: "Cracked Stone Bricks", category: "blocks", obtain: "Smelt stone bricks in furnace" },
-            { name: "Chiseled Stone Bricks", category: "blocks", obtain: "Craft with 2 stone brick slabs" },
-            { name: "Granite", category: "blocks", obtain: "Mine granite underground with pickaxe" },
-            { name: "Polished Granite", category: "blocks", obtain: "Craft with 4 granite blocks" },
-            { name: "Diorite", category: "blocks", obtain: "Mine diorite underground with pickaxe" },
-            { name: "Polished Diorite", category: "blocks", obtain: "Craft with 4 diorite blocks" },
-            { name: "Andesite", category: "blocks", obtain: "Mine andesite underground with pickaxe" },
-            { name: "Polished Andesite", category: "blocks", obtain: "Craft with 4 andesite blocks" },
-            { name: "Deepslate", category: "blocks", obtain: "Mine deepslate below Y=8" },
-            { name: "Cobbled Deepslate", category: "blocks", obtain: "Mine deepslate without silk touch" },
-            { name: "Polished Deepslate", category: "blocks", obtain: "Craft with 4 cobbled deepslate" },
-            { name: "Deepslate Bricks", category: "blocks", obtain: "Craft with 4 polished deepslate" },
-            { name: "Deepslate Tiles", category: "blocks", obtain: "Craft with 4 deepslate bricks" },
-            { name: "Chiseled Deepslate", category: "blocks", obtain: "Craft with 2 cobbled deepslate slabs" },
-            { name: "Cracked Deepslate Bricks", category: "blocks", obtain: "Smelt deepslate bricks in furnace" },
-            { name: "Cracked Deepslate Tiles", category: "blocks", obtain: "Smelt deepslate tiles in furnace" },
-            { name: "Reinforced Deepslate", category: "blocks", obtain: "Found in Ancient Cities (uncraftable)" },
-            { name: "Calcite", category: "blocks", obtain: "Mine in amethyst geodes" },
-            { name: "Tuff", category: "blocks", obtain: "Mine tuff below Y=16" },
-            { name: "Dripstone Block", category: "blocks", obtain: "Craft with 4 pointed dripstone" },
-            
-            // DIRT AND TERRAIN
-            { name: "--- DIRT & TERRAIN ---", category: "section", obtain: "" },
-            { name: "Dirt", category: "blocks", obtain: "Mine dirt blocks with any tool" },
-            { name: "Grass Block", category: "blocks", obtain: "Use silk touch on grass blocks" },
-            { name: "Podzol", category: "blocks", obtain: "Use silk touch in mega taiga biomes" },
-            { name: "Mycelium", category: "blocks", obtain: "Use silk touch in mushroom islands" },
-            { name: "Coarse Dirt", category: "blocks", obtain: "Craft dirt + gravel in checkerboard" },
-            { name: "Rooted Dirt", category: "blocks", obtain: "Found under azalea trees" },
-            { name: "Mud", category: "blocks", obtain: "Use water bottle on dirt" },
-            { name: "Muddy Mangrove Roots", category: "blocks", obtain: "Use water bottle on mangrove roots" },
-            { name: "Packed Mud", category: "blocks", obtain: "Craft mud + wheat" },
-            { name: "Mud Bricks", category: "blocks", obtain: "Craft with 4 packed mud" },
-            { name: "Clay", category: "blocks", obtain: "Mine clay underwater with shovel" },
-            { name: "Terracotta", category: "blocks", obtain: "Smelt clay in furnace" },
-            { name: "Gravel", category: "blocks", obtain: "Mine gravel (may drop flint)" },
-            { name: "Suspicious Gravel", category: "blocks", obtain: "Found in cold ocean ruins, trail ruins" },
-            
-            // SAND AND SANDSTONE
-            { name: "--- SAND & SANDSTONE ---", category: "section", obtain: "" },
-            { name: "Sand", category: "blocks", obtain: "Mine sand in deserts/beaches" },
-            { name: "Red Sand", category: "blocks", obtain: "Mine red sand in badlands" },
-            { name: "Suspicious Sand", category: "blocks", obtain: "Found in desert temples, warm ocean ruins" },
-            { name: "Sandstone", category: "blocks", obtain: "Craft with 4 sand blocks" },
-            { name: "Smooth Sandstone", category: "blocks", obtain: "Smelt sandstone in furnace" },
-            { name: "Chiseled Sandstone", category: "blocks", obtain: "Craft with 2 sandstone slabs" },
-            { name: "Cut Sandstone", category: "blocks", obtain: "Stonecutter or craft 4 sandstone" },
-            { name: "Red Sandstone", category: "blocks", obtain: "Craft with 4 red sand blocks" },
-            { name: "Smooth Red Sandstone", category: "blocks", obtain: "Smelt red sandstone in furnace" },
-            { name: "Chiseled Red Sandstone", category: "blocks", obtain: "Craft with 2 red sandstone slabs" },
-            { name: "Cut Red Sandstone", category: "blocks", obtain: "Stonecutter or craft 4 red sandstone" },
-            
-            // WOOD LOGS
-            { name: "--- WOOD LOGS ---", category: "section", obtain: "" },
-            { name: "Oak Log", category: "blocks", obtain: "Chop oak trees" },
-            { name: "Spruce Log", category: "blocks", obtain: "Chop spruce trees" },
-            { name: "Birch Log", category: "blocks", obtain: "Chop birch trees" },
-            { name: "Jungle Log", category: "blocks", obtain: "Chop jungle trees" },
-            { name: "Acacia Log", category: "blocks", obtain: "Chop acacia trees" },
-            { name: "Dark Oak Log", category: "blocks", obtain: "Chop dark oak trees" },
-            { name: "Mangrove Log", category: "blocks", obtain: "Chop mangrove trees" },
-            { name: "Cherry Log", category: "blocks", obtain: "Chop cherry trees" },
-            { name: "Bamboo Block", category: "blocks", obtain: "Craft with 9 bamboo" },
-            { name: "Crimson Stem", category: "blocks", obtain: "Chop crimson fungi in Nether" },
-            { name: "Warped Stem", category: "blocks", obtain: "Chop warped fungi in Nether" },
-            
-            // STRIPPED LOGS
-            { name: "--- STRIPPED LOGS ---", category: "section", obtain: "" },
-            { name: "Stripped Oak Log", category: "blocks", obtain: "Use axe on oak log" },
-            { name: "Stripped Spruce Log", category: "blocks", obtain: "Use axe on spruce log" },
-            { name: "Stripped Birch Log", category: "blocks", obtain: "Use axe on birch log" },
-            { name: "Stripped Jungle Log", category: "blocks", obtain: "Use axe on jungle log" },
-            { name: "Stripped Acacia Log", category: "blocks", obtain: "Use axe on acacia log" },
-            { name: "Stripped Dark Oak Log", category: "blocks", obtain: "Use axe on dark oak log" },
-            { name: "Stripped Mangrove Log", category: "blocks", obtain: "Use axe on mangrove log" },
-            { name: "Stripped Cherry Log", category: "blocks", obtain: "Use axe on cherry log" },
-            { name: "Stripped Bamboo Block", category: "blocks", obtain: "Use axe on bamboo block" },
-            { name: "Stripped Crimson Stem", category: "blocks", obtain: "Use axe on crimson stem" },
-            { name: "Stripped Warped Stem", category: "blocks", obtain: "Use axe on warped stem" },
-            
-            // WOOD PLANKS
-            { name: "--- WOOD PLANKS ---", category: "section", obtain: "" },
-            { name: "Oak Planks", category: "blocks", obtain: "Craft with any oak wood" },
-            { name: "Spruce Planks", category: "blocks", obtain: "Craft with any spruce wood" },
-            { name: "Birch Planks", category: "blocks", obtain: "Craft with any birch wood" },
-            { name: "Jungle Planks", category: "blocks", obtain: "Craft with any jungle wood" },
-            { name: "Acacia Planks", category: "blocks", obtain: "Craft with any acacia wood" },
-            { name: "Dark Oak Planks", category: "blocks", obtain: "Craft with any dark oak wood" },
-            { name: "Mangrove Planks", category: "blocks", obtain: "Craft with any mangrove wood" },
-            { name: "Cherry Planks", category: "blocks", obtain: "Craft with any cherry wood" },
-            { name: "Bamboo Planks", category: "blocks", obtain: "Craft with bamboo block" },
-            { name: "Crimson Planks", category: "blocks", obtain: "Craft with any crimson stem" },
-            { name: "Warped Planks", category: "blocks", obtain: "Craft with any warped stem" },
-            
-            // ORES
-            { name: "--- ORES ---", category: "section", obtain: "" },
-            { name: "Coal Ore", category: "blocks", obtain: "Mine with any pickaxe (drops coal)" },
-            { name: "Deepslate Coal Ore", category: "blocks", obtain: "Mine deepslate version with any pickaxe" },
-            { name: "Iron Ore", category: "blocks", obtain: "Mine with stone+ pickaxe (use silk touch)" },
-            { name: "Deepslate Iron Ore", category: "blocks", obtain: "Mine deepslate version with stone+ pickaxe" },
-            { name: "Copper Ore", category: "blocks", obtain: "Mine with stone+ pickaxe (use silk touch)" },
-            { name: "Deepslate Copper Ore", category: "blocks", obtain: "Mine deepslate version with stone+ pickaxe" },
-            { name: "Gold Ore", category: "blocks", obtain: "Mine with iron+ pickaxe (use silk touch)" },
-            { name: "Deepslate Gold Ore", category: "blocks", obtain: "Mine deepslate version with iron+ pickaxe" },
-            { name: "Nether Gold Ore", category: "blocks", obtain: "Mine in Nether with any pickaxe" },
-            { name: "Redstone Ore", category: "blocks", obtain: "Mine with iron+ pickaxe (use silk touch)" },
-            { name: "Deepslate Redstone Ore", category: "blocks", obtain: "Mine deepslate version with iron+ pickaxe" },
-            { name: "Lapis Lazuli Ore", category: "blocks", obtain: "Mine with stone+ pickaxe (use silk touch)" },
-            { name: "Deepslate Lapis Ore", category: "blocks", obtain: "Mine deepslate version with stone+ pickaxe" },
-            { name: "Diamond Ore", category: "blocks", obtain: "Mine with iron+ pickaxe (use silk touch)" },
-            { name: "Deepslate Diamond Ore", category: "blocks", obtain: "Mine deepslate version with iron+ pickaxe" },
-            { name: "Emerald Ore", category: "blocks", obtain: "Mine with iron+ pickaxe (use silk touch)" },
-            { name: "Deepslate Emerald Ore", category: "blocks", obtain: "Mine deepslate version with iron+ pickaxe" },
-            { name: "Nether Quartz Ore", category: "blocks", obtain: "Mine in Nether with any pickaxe" },
-            { name: "Ancient Debris", category: "blocks", obtain: "Mine in Nether with diamond+ pickaxe" },
-            
-            // METAL BLOCKS
-            { name: "--- METAL BLOCKS ---", category: "section", obtain: "" },
-            { name: "Iron Block", category: "blocks", obtain: "Craft with 9 iron ingots" },
-            { name: "Gold Block", category: "blocks", obtain: "Craft with 9 gold ingots" },
-            { name: "Diamond Block", category: "blocks", obtain: "Craft with 9 diamonds" },
-            { name: "Emerald Block", category: "blocks", obtain: "Craft with 9 emeralds" },
-            { name: "Netherite Block", category: "blocks", obtain: "Craft with 9 netherite ingots" },
-            { name: "Coal Block", category: "blocks", obtain: "Craft with 9 coal" },
-            { name: "Lapis Lazuli Block", category: "blocks", obtain: "Craft with 9 lapis lazuli" },
-            { name: "Redstone Block", category: "blocks", obtain: "Craft with 9 redstone dust" },
-            { name: "Copper Block", category: "blocks", obtain: "Craft with 9 copper ingots" },
-            { name: "Exposed Copper", category: "blocks", obtain: "Wait for copper to oxidize" },
-            { name: "Weathered Copper", category: "blocks", obtain: "Wait for exposed copper to oxidize" },
-            { name: "Oxidized Copper", category: "blocks", obtain: "Wait for weathered copper to oxidize" },
-            { name: "Cut Copper", category: "blocks", obtain: "Craft/stonecutter with 4 copper blocks" },
-            { name: "Exposed Cut Copper", category: "blocks", obtain: "Wait for cut copper to oxidize" },
-            { name: "Weathered Cut Copper", category: "blocks", obtain: "Wait for exposed cut copper to oxidize" },
-            { name: "Oxidized Cut Copper", category: "blocks", obtain: "Wait for weathered cut copper to oxidize" },
-            { name: "Raw Iron Block", category: "blocks", obtain: "Craft with 9 raw iron" },
-            { name: "Raw Copper Block", category: "blocks", obtain: "Craft with 9 raw copper" },
-            { name: "Raw Gold Block", category: "blocks", obtain: "Craft with 9 raw gold" },
-            
-            // GLASS
-            { name: "--- GLASS ---", category: "section", obtain: "" },
-            { name: "Glass", category: "blocks", obtain: "Smelt sand in furnace" },
-            { name: "Tinted Glass", category: "blocks", obtain: "Craft glass + 4 amethyst shards" },
-            { name: "White Stained Glass", category: "blocks", obtain: "Craft 8 glass + white dye" },
-            { name: "Orange Stained Glass", category: "blocks", obtain: "Craft 8 glass + orange dye" },
-            { name: "Magenta Stained Glass", category: "blocks", obtain: "Craft 8 glass + magenta dye" },
-            { name: "Light Blue Stained Glass", category: "blocks", obtain: "Craft 8 glass + light blue dye" },
-            { name: "Yellow Stained Glass", category: "blocks", obtain: "Craft 8 glass + yellow dye" },
-            { name: "Lime Stained Glass", category: "blocks", obtain: "Craft 8 glass + lime dye" },
-            { name: "Pink Stained Glass", category: "blocks", obtain: "Craft 8 glass + pink dye" },
-            { name: "Gray Stained Glass", category: "blocks", obtain: "Craft 8 glass + gray dye" },
-            { name: "Light Gray Stained Glass", category: "blocks", obtain: "Craft 8 glass + light gray dye" },
-            { name: "Cyan Stained Glass", category: "blocks", obtain: "Craft 8 glass + cyan dye" },
-            { name: "Purple Stained Glass", category: "blocks", obtain: "Craft 8 glass + purple dye" },
-            { name: "Blue Stained Glass", category: "blocks", obtain: "Craft 8 glass + blue dye" },
-            { name: "Brown Stained Glass", category: "blocks", obtain: "Craft 8 glass + brown dye" },
-            { name: "Green Stained Glass", category: "blocks", obtain: "Craft 8 glass + green dye" },
-            { name: "Red Stained Glass", category: "blocks", obtain: "Craft 8 glass + red dye" },
-            { name: "Black Stained Glass", category: "blocks", obtain: "Craft 8 glass + black dye" },
-            
-            // CONCRETE
-            { name: "--- CONCRETE ---", category: "section", obtain: "" },
-            { name: "White Concrete", category: "blocks", obtain: "Add water to white concrete powder" },
-            { name: "Orange Concrete", category: "blocks", obtain: "Add water to orange concrete powder" },
-            { name: "Magenta Concrete", category: "blocks", obtain: "Add water to magenta concrete powder" },
-            { name: "Light Blue Concrete", category: "blocks", obtain: "Add water to light blue concrete powder" },
-            { name: "Yellow Concrete", category: "blocks", obtain: "Add water to yellow concrete powder" },
-            { name: "Lime Concrete", category: "blocks", obtain: "Add water to lime concrete powder" },
-            { name: "Pink Concrete", category: "blocks", obtain: "Add water to pink concrete powder" },
-            { name: "Gray Concrete", category: "blocks", obtain: "Add water to gray concrete powder" },
-            { name: "Light Gray Concrete", category: "blocks", obtain: "Add water to light gray concrete powder" },
-            { name: "Cyan Concrete", category: "blocks", obtain: "Add water to cyan concrete powder" },
-            { name: "Purple Concrete", category: "blocks", obtain: "Add water to purple concrete powder" },
-            { name: "Blue Concrete", category: "blocks", obtain: "Add water to blue concrete powder" },
-            { name: "Brown Concrete", category: "blocks", obtain: "Add water to brown concrete powder" },
-            { name: "Green Concrete", category: "blocks", obtain: "Add water to green concrete powder" },
-            { name: "Red Concrete", category: "blocks", obtain: "Add water to red concrete powder" },
-            { name: "Black Concrete", category: "blocks", obtain: "Add water to black concrete powder" },
-            
-            // WOOL
-            { name: "--- WOOL ---", category: "section", obtain: "" },
-            { name: "White Wool", category: "blocks", obtain: "Shear sheep or craft 4 string" },
-            { name: "Orange Wool", category: "blocks", obtain: "Dye white wool with orange dye" },
-            { name: "Magenta Wool", category: "blocks", obtain: "Dye white wool with magenta dye" },
-            { name: "Light Blue Wool", category: "blocks", obtain: "Dye white wool with light blue dye" },
-            { name: "Yellow Wool", category: "blocks", obtain: "Dye white wool with yellow dye" },
-            { name: "Lime Wool", category: "blocks", obtain: "Dye white wool with lime dye" },
-            { name: "Pink Wool", category: "blocks", obtain: "Dye white wool with pink dye" },
-            { name: "Gray Wool", category: "blocks", obtain: "Dye white wool with gray dye" },
-            { name: "Light Gray Wool", category: "blocks", obtain: "Dye white wool with light gray dye" },
-            { name: "Cyan Wool", category: "blocks", obtain: "Dye white wool with cyan dye" },
-            { name: "Purple Wool", category: "blocks", obtain: "Dye white wool with purple dye" },
-            { name: "Blue Wool", category: "blocks", obtain: "Dye white wool with blue dye" },
-            { name: "Brown Wool", category: "blocks", obtain: "Dye white wool with brown dye" },
-            { name: "Green Wool", category: "blocks", obtain: "Dye white wool with green dye" },
-            { name: "Red Wool", category: "blocks", obtain: "Dye white wool with red dye" },
-            { name: "Black Wool", category: "blocks", obtain: "Dye white wool with black dye" },
-            
-            // NETHER BLOCKS
-            { name: "--- NETHER BLOCKS ---", category: "section", obtain: "" },
-            { name: "Netherrack", category: "blocks", obtain: "Mine netherrack in the Nether" },
-            { name: "Nether Bricks", category: "blocks", obtain: "Craft with 4 nether brick items" },
-            { name: "Red Nether Bricks", category: "blocks", obtain: "Craft nether bricks + nether wart" },
-            { name: "Chiseled Nether Bricks", category: "blocks", obtain: "Craft with 2 nether brick slabs" },
-            { name: "Cracked Nether Bricks", category: "blocks", obtain: "Smelt nether bricks in furnace" },
-            { name: "Basalt", category: "blocks", obtain: "Mine in basalt deltas" },
-            { name: "Polished Basalt", category: "blocks", obtain: "Craft with 4 basalt" },
-            { name: "Smooth Basalt", category: "blocks", obtain: "Smelt basalt in furnace" },
-            { name: "Blackstone", category: "blocks", obtain: "Mine blackstone in the Nether" },
-            { name: "Polished Blackstone", category: "blocks", obtain: "Craft with 4 blackstone" },
-            { name: "Chiseled Polished Blackstone", category: "blocks", obtain: "Craft with 2 polished blackstone slabs" },
-            { name: "Polished Blackstone Bricks", category: "blocks", obtain: "Craft with 4 polished blackstone" },
-            { name: "Cracked Polished Blackstone Bricks", category: "blocks", obtain: "Smelt polished blackstone bricks" },
-            { name: "Gilded Blackstone", category: "blocks", obtain: "Mine in bastion remnants" },
-            { name: "Soul Sand", category: "blocks", obtain: "Mine in soul sand valleys" },
-            { name: "Soul Soil", category: "blocks", obtain: "Mine in soul sand valleys" },
-            { name: "Magma Block", category: "blocks", obtain: "Craft with 4 magma cream or find in Nether" },
-            { name: "Nether Wart Block", category: "blocks", obtain: "Craft with 9 nether wart" },
-            { name: "Warped Wart Block", category: "blocks", obtain: "Found in warped forests" },
-            { name: "Shroomlight", category: "blocks", obtain: "Mine in Nether forests" },
-            { name: "Crying Obsidian", category: "blocks", obtain: "Find in ruined portals or trade with piglins" },
-            { name: "Obsidian", category: "blocks", obtain: "Mine obsidian with diamond+ pickaxe" },
-            { name: "Glowstone", category: "blocks", obtain: "Mine glowstone in the Nether" },
-            { name: "Bone Block", category: "blocks", obtain: "Craft with 9 bone meal" },
-            
-            // END BLOCKS
-            { name: "--- END BLOCKS ---", category: "section", obtain: "" },
-            { name: "End Stone", category: "blocks", obtain: "Mine end stone in the End" },
-            { name: "End Stone Bricks", category: "blocks", obtain: "Craft with 4 end stone" },
-            { name: "Purpur Block", category: "blocks", obtain: "Craft with 4 popped chorus fruit" },
-            { name: "Purpur Pillar", category: "blocks", obtain: "Craft with 2 purpur slabs" },
-            { name: "Chorus Plant", category: "blocks", obtain: "Mine chorus trees in End cities" },
-            { name: "Chorus Flower", category: "blocks", obtain: "Mine the top of chorus plants" },
-            
-            // NATURAL BLOCKS
-            { name: "--- NATURAL BLOCKS ---", category: "section", obtain: "" },
-            { name: "Bedrock", category: "blocks", obtain: "Creative mode only (bottom of world)" },
-            { name: "Water", category: "blocks", obtain: "Use bucket to collect water" },
-            { name: "Lava", category: "blocks", obtain: "Use bucket to collect lava" },
-            { name: "Snow Block", category: "blocks", obtain: "Craft with 4 snowballs" },
-            { name: "Snow", category: "blocks", obtain: "Forms naturally or use shovel on snow block" },
-            { name: "Ice", category: "blocks", obtain: "Use silk touch on ice" },
-            { name: "Packed Ice", category: "blocks", obtain: "Use silk touch on packed ice" },
-            { name: "Blue Ice", category: "blocks", obtain: "Craft with 9 packed ice" },
-            { name: "Frosted Ice", category: "blocks", obtain: "Walk on water with Frost Walker boots" },
-            
-            // PLANT BLOCKS
-            { name: "--- PLANT BLOCKS ---", category: "section", obtain: "" },
-            { name: "Oak Leaves", category: "blocks", obtain: "Use shears or silk touch on oak leaves" },
-            { name: "Spruce Leaves", category: "blocks", obtain: "Use shears or silk touch on spruce leaves" },
-            { name: "Birch Leaves", category: "blocks", obtain: "Use shears or silk touch on birch leaves" },
-            { name: "Jungle Leaves", category: "blocks", obtain: "Use shears or silk touch on jungle leaves" },
-            { name: "Acacia Leaves", category: "blocks", obtain: "Use shears or silk touch on acacia leaves" },
-            { name: "Dark Oak Leaves", category: "blocks", obtain: "Use shears or silk touch on dark oak leaves" },
-            { name: "Mangrove Leaves", category: "blocks", obtain: "Use shears or silk touch on mangrove leaves" },
-            { name: "Cherry Leaves", category: "blocks", obtain: "Use shears or silk touch on cherry leaves" },
-            { name: "Azalea Leaves", category: "blocks", obtain: "Use shears or silk touch on azalea leaves" },
-            { name: "Flowering Azalea Leaves", category: "blocks", obtain: "Use shears or silk touch on flowering azalea" },
-            { name: "Cactus", category: "blocks", obtain: "Mine cactus in desert" },
-            { name: "Sugar Cane", category: "blocks", obtain: "Mine sugar cane near water" },
-            { name: "Kelp", category: "blocks", obtain: "Mine kelp underwater" },
-            { name: "Kelp Block", category: "blocks", obtain: "Craft with 9 dried kelp" },
-            { name: "Bamboo", category: "blocks", obtain: "Mine bamboo in jungle" },
-            { name: "Moss Block", category: "blocks", obtain: "Find in lush caves or craft with moss carpet" },
-            { name: "Moss Carpet", category: "blocks", obtain: "Craft with 2 moss blocks" },
-            { name: "Vine", category: "blocks", obtain: "Use shears on vines" },
-            { name: "Glow Lichen", category: "blocks", obtain: "Use shears on glow lichen" },
-            { name: "Hanging Roots", category: "blocks", obtain: "Use shears on hanging roots" },
-            { name: "Big Dripleaf", category: "blocks", obtain: "Find in lush caves" },
-            { name: "Small Dripleaf", category: "blocks", obtain: "Find in lush caves" },
-            { name: "Spore Blossom", category: "blocks", obtain: "Find in lush caves" },
-            { name: "Mangrove Roots", category: "blocks", obtain: "Use shears or axe on mangrove roots" },
-            { name: "Muddy Mangrove Roots", category: "blocks", obtain: "Use water bottle on mangrove roots" },
-            { name: "Mangrove Propagule", category: "blocks", obtain: "Find on mangrove trees" },
-            
-            // CORAL
-            { name: "--- CORAL ---", category: "section", obtain: "" },
-            { name: "Brain Coral Block", category: "blocks", obtain: "Use silk touch on brain coral block" },
-            { name: "Bubble Coral Block", category: "blocks", obtain: "Use silk touch on bubble coral block" },
-            { name: "Fire Coral Block", category: "blocks", obtain: "Use silk touch on fire coral block" },
-            { name: "Horn Coral Block", category: "blocks", obtain: "Use silk touch on horn coral block" },
-            { name: "Tube Coral Block", category: "blocks", obtain: "Use silk touch on tube coral block" },
-            { name: "Brain Coral", category: "blocks", obtain: "Use silk touch on brain coral" },
-            { name: "Bubble Coral", category: "blocks", obtain: "Use silk touch on bubble coral" },
-            { name: "Fire Coral", category: "blocks", obtain: "Use silk touch on fire coral" },
-            { name: "Horn Coral", category: "blocks", obtain: "Use silk touch on horn coral" },
-            { name: "Tube Coral", category: "blocks", obtain: "Use silk touch on tube coral" },
-            { name: "Brain Coral Fan", category: "blocks", obtain: "Use silk touch on brain coral fan" },
-            { name: "Bubble Coral Fan", category: "blocks", obtain: "Use silk touch on bubble coral fan" },
-            { name: "Fire Coral Fan", category: "blocks", obtain: "Use silk touch on fire coral fan" },
-            { name: "Horn Coral Fan", category: "blocks", obtain: "Use silk touch on horn coral fan" },
-            { name: "Tube Coral Fan", category: "blocks", obtain: "Use silk touch on tube coral fan" },
-            { name: "Sea Pickle", category: "blocks", obtain: "Find underwater in warm oceans" },
-            
-            // SPONGES
-            { name: "--- SPONGES ---", category: "section", obtain: "" },
-            { name: "Sponge", category: "blocks", obtain: "Find in ocean monuments" },
-            { name: "Wet Sponge", category: "blocks", obtain: "Sponge absorbs water" },
-            
-            // MUSHROOM BLOCKS
-            { name: "--- MUSHROOM BLOCKS ---", category: "section", obtain: "" },
-            { name: "Brown Mushroom Block", category: "blocks", obtain: "Use silk touch on giant mushrooms" },
-            { name: "Red Mushroom Block", category: "blocks", obtain: "Use silk touch on giant mushrooms" },
-            { name: "Mushroom Stem", category: "blocks", obtain: "Use silk touch on giant mushroom stems" },
-            { name: "Brown Mushroom", category: "blocks", obtain: "Find in dark areas" },
-            { name: "Red Mushroom", category: "blocks", obtain: "Find in dark areas" },
-            { name: "Crimson Fungus", category: "blocks", obtain: "Find in crimson forests" },
-            { name: "Warped Fungus", category: "blocks", obtain: "Find in warped forests" },
-            { name: "Crimson Roots", category: "blocks", obtain: "Find in crimson forests" },
-            { name: "Warped Roots", category: "blocks", obtain: "Find in warped forests" },
-            { name: "Nether Sprouts", category: "blocks", obtain: "Find in warped forests" },
-            
-            // AMETHYST
-            { name: "--- AMETHYST ---", category: "section", obtain: "" },
-            { name: "Amethyst Block", category: "blocks", obtain: "Craft with 4 amethyst shards" },
-            { name: "Budding Amethyst", category: "blocks", obtain: "Cannot be obtained (silk touch doesn't work)" },
-            { name: "Small Amethyst Bud", category: "blocks", obtain: "Use silk touch on small amethyst bud" },
-            { name: "Medium Amethyst Bud", category: "blocks", obtain: "Use silk touch on medium amethyst bud" },
-            { name: "Large Amethyst Bud", category: "blocks", obtain: "Use silk touch on large amethyst bud" },
-            { name: "Amethyst Cluster", category: "blocks", obtain: "Use silk touch on amethyst cluster" },
-            
-            // SCULK
-            { name: "--- SCULK ---", category: "section", obtain: "" },
-            { name: "Sculk", category: "blocks", obtain: "Use silk touch on sculk" },
-            { name: "Sculk Vein", category: "blocks", obtain: "Use silk touch on sculk vein" },
-            { name: "Sculk Catalyst", category: "blocks", obtain: "Use silk touch on sculk catalyst" },
-            { name: "Sculk Sensor", category: "blocks", obtain: "Use silk touch on sculk sensor" },
-            { name: "Calibrated Sculk Sensor", category: "blocks", obtain: "Craft sculk sensor + 3 amethyst shards" },
-            { name: "Sculk Shrieker", category: "blocks", obtain: "Use silk touch on sculk shrieker" },
-            
-            // PASSIVE MOBS
-            { name: "--- PASSIVE MOBS ---", category: "section", obtain: "" },
-            { name: "Pig", category: "passive", obtain: "Spawn naturally in most biomes" },
-            { name: "Cow", category: "passive", obtain: "Spawn naturally in most biomes" },
-            { name: "Mooshroom", category: "passive", obtain: "Spawn only in mushroom islands" },
-            { name: "Sheep", category: "passive", obtain: "Spawn naturally in most biomes" },
-            { name: "Chicken", category: "passive", obtain: "Spawn naturally in most biomes" },
-            { name: "Rabbit", category: "passive", obtain: "Spawn in various biomes" },
-            { name: "Horse", category: "passive", obtain: "Spawn in plains and savannas" },
-            { name: "Donkey", category: "passive", obtain: "Spawn in plains and savannas" },
-            { name: "Mule", category: "passive", obtain: "Breed horse + donkey" },
-            { name: "Llama", category: "passive", obtain: "Spawn in mountains and savannas" },
-            { name: "Trader Llama", category: "passive", obtain: "Comes with wandering trader" },
-            { name: "Cat", category: "passive", obtain: "Spawn in villages or tame ocelot" },
-            { name: "Ocelot", category: "passive", obtain: "Spawn in jungle biomes" },
-            { name: "Wolf", category: "neutral", obtain: "Spawn in forest and taiga biomes" },
-            { name: "Parrot", category: "passive", obtain: "Spawn in jungle biomes" },
-            { name: "Bat", category: "passive", obtain: "Spawn in caves below Y=63" },
-            { name: "Squid", category: "passive", obtain: "Spawn in water" },
-            { name: "Glow Squid", category: "passive", obtain: "Spawn in underground water" },
-            { name: "Cod", category: "passive", obtain: "Spawn in cold and normal oceans" },
-            { name: "Salmon", category: "passive", obtain: "Spawn in cold oceans and rivers" },
-            { name: "Tropical Fish", category: "passive", obtain: "Spawn in warm oceans" },
-            { name: "Pufferfish", category: "passive", obtain: "Spawn in warm oceans" },
-            { name: "Dolphin", category: "neutral", obtain: "Spawn in ocean biomes" },
-            { name: "Turtle", category: "passive", obtain: "Spawn on beaches" },
-            { name: "Polar Bear", category: "neutral", obtain: "Spawn in snowy biomes" },
-            { name: "Panda", category: "passive", obtain: "Spawn in bamboo jungle" },
-            { name: "Fox", category: "passive", obtain: "Spawn in taiga biomes" },
-            { name: "Bee", category: "neutral", obtain: "Spawn near bee nests" },
-            { name: "Strider", category: "passive", obtain: "Spawn in Nether lava" },
-            { name: "Axolotl", category: "passive", obtain: "Spawn in underground water" },
-            { name: "Goat", category: "neutral", obtain: "Spawn in mountain biomes" },
-            { name: "Glow Berries", category: "blocks", obtain: "Find on cave vines" },
-            { name: "Allay", category: "passive", obtain: "Find in woodland mansions or pillager outposts" },
-            { name: "Frog", category: "passive", obtain: "Tadpoles grow into frogs" },
-            { name: "Tadpole", category: "passive", obtain: "Breed frogs with slimeballs" },
-            { name: "Warden", category: "boss", obtain: "Spawns when sculk shrieker activated 4 times" },
-            { name: "Camel", category: "passive", obtain: "Spawn in desert villages" },
-            { name: "Sniffer", category: "passive", obtain: "Hatch from sniffer egg" },
-            { name: "Armadillo", category: "passive", obtain: "Spawn in savanna biomes" },
-            
-            // HOSTILE MOBS
-            { name: "--- HOSTILE MOBS ---", category: "section", obtain: "" },
-            { name: "Zombie", category: "hostile", obtain: "Spawn in dark areas at night" },
-            { name: "Skeleton", category: "hostile", obtain: "Spawn in dark areas at night" },
-            { name: "Creeper", category: "hostile", obtain: "Spawn in dark areas at night" },
-            { name: "Spider", category: "neutral", obtain: "Spawn in dark areas" },
-            { name: "Cave Spider", category: "hostile", obtain: "Spawn from spawners in mineshafts" },
-            { name: "Enderman", category: "neutral", obtain: "Spawn in dark areas and the End" },
-            { name: "Witch", category: "hostile", obtain: "Spawn in swamp huts or from villagers" },
-            { name: "Slime", category: "hostile", obtain: "Spawn in swamps and slime chunks" },
-            { name: "Magma Cube", category: "hostile", obtain: "Spawn in the Nether" },
-            { name: "Ghast", category: "hostile", obtain: "Spawn in the Nether" },
-            { name: "Blaze", category: "hostile", obtain: "Spawn in Nether fortresses" },
-            { name: "Wither Skeleton", category: "hostile", obtain: "Spawn in Nether fortresses" },
-            { name: "Zombified Piglin", category: "neutral", obtain: "Spawn in the Nether" },
-            { name: "Piglin", category: "neutral", obtain: "Spawn in the Nether" },
-            { name: "Piglin Brute", category: "hostile", obtain: "Spawn in bastion remnants" },
-            { name: "Hoglin", category: "hostile", obtain: "Spawn in crimson forests" },
-            { name: "Zoglin", category: "hostile", obtain: "Hoglin in Overworld becomes zoglin" },
-            { name: "Endermite", category: "hostile", obtain: "Small chance when throwing ender pearl" },
-            { name: "Silverfish", category: "hostile", obtain: "Spawn from infested blocks" },
-            { name: "Guardian", category: "hostile", obtain: "Spawn in ocean monuments" },
-            { name: "Elder Guardian", category: "boss", obtain: "Spawn in ocean monuments (3 per monument)" },
-            { name: "Shulker", category: "hostile", obtain: "Spawn in End cities" },
-            { name: "Phantom", category: "hostile", obtain: "Spawn when player hasn't slept for 3+ days" },
-            { name: "Drowned", category: "hostile", obtain: "Zombie that drowned or spawn underwater" },
-            { name: "Husk", category: "hostile", obtain: "Spawn in desert biomes" },
-            { name: "Stray", category: "hostile", obtain: "Spawn in snowy biomes" },
-            { name: "Pillager", category: "hostile", obtain: "Spawn in pillager outposts" },
-            { name: "Vindicator", category: "hostile", obtain: "Spawn in woodland mansions" },
-            { name: "Evoker", category: "hostile", obtain: "Spawn in woodland mansions" },
-            { name: "Vex", category: "hostile", obtain: "Summoned by evokers" },
-            { name: "Ravager", category: "hostile", obtain: "Spawn in raids" },
-            { name: "Illusioner", category: "hostile", obtain: "Unused mob (commands only)" },
-            
-            // BOSS MOBS
-            { name: "--- BOSS MOBS ---", category: "section", obtain: "" },
-            { name: "Ender Dragon", category: "boss", obtain: "Fight in the End dimension" },
-            { name: "Wither", category: "boss", obtain: "Summon with 4 soul sand + 3 wither skeleton skulls" },
-            
-            // RARE ITEMS
-            { name: "--- RARE ITEMS ---", category: "section", obtain: "" },
-            { name: "Dragon Egg", category: "items", obtain: "Appears after defeating Ender Dragon" },
-            { name: "Elytra", category: "items", obtain: "Find in End cities" },
-            { name: "Shulker Box", category: "items", obtain: "Craft with chest + 2 shulker shells" },
-            { name: "Nether Star", category: "items", obtain: "Dropped by Wither boss" },
-            { name: "Beacon", category: "items", obtain: "Craft with nether star + 3 obsidian + 5 glass" },
-            { name: "Conduit", category: "items", obtain: "Craft with nautilus shell + 8 nautilus shells" },
-            { name: "Heart of the Sea", category: "items", obtain: "Find in buried treasure chests" },
-            { name: "Nautilus Shell", category: "items", obtain: "Trade with wandering trader or fish" },
-            { name: "Trident", category: "items", obtain: "Rare drop from drowned" },
-            { name: "Totem of Undying", category: "items", obtain: "Dropped by evokers" },
-            { name: "Music Disc (13)", category: "items", obtain: "Dungeon/structure loot or skeleton kills creeper" },
-            { name: "Music Disc (cat)", category: "items", obtain: "Dungeon/structure loot or skeleton kills creeper" },
-            { name: "Music Disc (blocks)", category: "items", obtain: "Dungeon/structure loot or skeleton kills creeper" },
-            { name: "Music Disc (chirp)", category: "items", obtain: "Dungeon/structure loot or skeleton kills creeper" },
-            { name: "Music Disc (far)", category: "items", obtain: "Dungeon/structure loot or skeleton kills creeper" },
-            { name: "Music Disc (mall)", category: "items", obtain: "Dungeon/structure loot or skeleton kills creeper" },
-            { name: "Music Disc (mellohi)", category: "items", obtain: "Dungeon/structure loot or skeleton kills creeper" },
-            { name: "Music Disc (stal)", category: "items", obtain: "Dungeon/structure loot or skeleton kills creeper" },
-            { name: "Music Disc (strad)", category: "items", obtain: "Dungeon/structure loot or skeleton kills creeper" },
-            { name: "Music Disc (ward)", category: "items", obtain: "Dungeon/structure loot or skeleton kills creeper" },
-            { name: "Music Disc (11)", category: "items", obtain: "Dungeon/structure loot or skeleton kills creeper" },
-            { name: "Music Disc (wait)", category: "items", obtain: "Dungeon/structure loot or skeleton kills creeper" },
-            { name: "Music Disc (otherside)", category: "items", obtain: "Rare loot in stronghold/dungeon chests" },
-            { name: "Music Disc (5)", category: "items", obtain: "Ancient city loot chests" },
-            { name: "Music Disc (pigstep)", category: "items", obtain: "Bastion remnant loot chests" },
-            { name: "Music Disc (relic)", category: "items", obtain: "Rare loot from trail ruins" },
-            { name: "Music Disc (Creator)", category: "items", obtain: "Creative mode only" },
-            { name: "Music Disc (Creator Music Box)", category: "items", obtain: "Creative mode only" },
-            { name: "Music Disc (Precipice)", category: "items", obtain: "Trial chamber reward vault" },
-            { name: "Enchanted Golden Apple", category: "items", obtain: "Find in dungeon/structure chests (very rare)" },
-            { name: "Golden Apple", category: "items", obtain: "Craft with gold ingots + apple" },
-            { name: "Wither Skeleton Skull", category: "items", obtain: "Rare drop from wither skeletons" },
-            { name: "Zombie Head", category: "items", obtain: "Rare drop when zombie killed by charged creeper" },
-            { name: "Skeleton Skull", category: "items", obtain: "Rare drop when skeleton killed by charged creeper" },
-            { name: "Creeper Head", category: "items", obtain: "Rare drop when creeper killed by charged creeper" },
-            { name: "Player Head", category: "items", obtain: "Rare drop when player killed by charged creeper" },
-            { name: "Dragon Head", category: "items", obtain: "Find on End ships" },
-            { name: "Piglin Head", category: "items", obtain: "Rare drop when piglin killed by charged creeper" },
-            { name: "Sniffer Egg", category: "items", obtain: "Brush suspicious sand in warm ocean ruins" },
-            { name: "Turtle Egg", category: "items", obtain: "Laid by turtles on beaches" },
-            { name: "Echo Shard", category: "items", obtain: "Find in ancient city chests" },
-            { name: "Recovery Compass", category: "items", obtain: "Craft with compass + 8 echo shards" },
-            { name: "Disc Fragment 5", category: "items", obtain: "Find in ancient city chests" },
-            { name: "Heavy Weighted Pressure Plate", category: "blocks", obtain: "Craft with 2 iron ingots" },
-            { name: "Light Weighted Pressure Plate", category: "blocks", obtain: "Craft with 2 gold ingots" },
-            { name: "Trial Key", category: "items", obtain: "Complete trial chambers" },
-            { name: "Ominous Trial Key", category: "items", obtain: "Complete ominous trial chambers" },
-            { name: "Wind Charge", category: "items", obtain: "Dropped by breezes" },
-            { name: "Breeze Rod", category: "items", obtain: "Dropped by breezes" },
-            { name: "Mace", category: "items", obtain: "Craft with heavy core + breeze rod" },
-            { name: "Heavy Core", category: "items", obtain: "Reward from ominous vault in trial chambers" },
-            { name: "Trial Spawner", category: "blocks", obtain: "Find in trial chambers (uncraftable)" },
-            { name: "Vault", category: "blocks", obtain: "Find in trial chambers (uncraftable)" },
-            { name: "Ominous Vault", category: "blocks", obtain: "Find in trial chambers (uncraftable)" },
-            
-            // POTIONS & BREWING
-            { name: "--- SPECIAL POTIONS ---", category: "section", obtain: "" },
-            { name: "Potion of Luck", category: "items", obtain: "Creative mode only (uncraftable)" },
-            { name: "Potion of Decay", category: "items", obtain: "Creative mode only (uncraftable)" },
-            { name: "Uncraftable Potion", category: "items", obtain: "Creative mode only" },
-            
-            // SPAWN EGGS
-            { name: "--- SPAWN EGGS ---", category: "section", obtain: "" },
-            { name: "Allay Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Armadillo Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Axolotl Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Bat Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Bee Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Blaze Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Bogged Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Breeze Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Camel Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Cat Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Cave Spider Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Chicken Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Cod Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Cow Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Creeper Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Dolphin Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Donkey Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Drowned Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Elder Guardian Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Ender Dragon Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Enderman Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Endermite Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Evoker Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Fox Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Frog Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Ghast Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Glow Squid Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Goat Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Guardian Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Hoglin Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Horse Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Husk Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Iron Golem Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Llama Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Magma Cube Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Mooshroom Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Mule Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Ocelot Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Panda Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Parrot Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Phantom Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Pig Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Piglin Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Piglin Brute Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Pillager Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Polar Bear Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Pufferfish Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Rabbit Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Ravager Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Salmon Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Sheep Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Shulker Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Silverfish Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Skeleton Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Skeleton Horse Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Slime Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Sniffer Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Snow Golem Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Spider Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Squid Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Stray Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Strider Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Tadpole Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Trader Llama Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Tropical Fish Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Turtle Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Vex Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Villager Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Vindicator Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Wandering Trader Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Warden Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Witch Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Wither Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Wither Skeleton Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Wolf Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Zoglin Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Zombie Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Zombie Horse Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Zombie Villager Spawn Egg", category: "items", obtain: "Creative mode only" },
-            { name: "Zombified Piglin Spawn Egg", category: "items", obtain: "Creative mode only" },
-            
-            // VILLAGER TYPES
-            { name: "--- VILLAGER TYPES ---", category: "section", obtain: "" },
-            { name: "Villager", category: "passive", obtain: "Spawn in villages" },
-            { name: "Armorer", category: "passive", obtain: "Villager with blast furnace workstation" },
-            { name: "Butcher", category: "passive", obtain: "Villager with smoker workstation" },
-            { name: "Cartographer", category: "passive", obtain: "Villager with cartography table workstation" },
-            { name: "Cleric", category: "passive", obtain: "Villager with brewing stand workstation" },
-            { name: "Farmer", category: "passive", obtain: "Villager with composter workstation" },
-            { name: "Fisherman", category: "passive", obtain: "Villager with barrel workstation" },
-            { name: "Fletcher", category: "passive", obtain: "Villager with fletching table workstation" },
-            { name: "Leatherworker", category: "passive", obtain: "Villager with cauldron workstation" },
-            { name: "Librarian", category: "passive", obtain: "Villager with lectern workstation" },
-            { name: "Mason", category: "passive", obtain: "Villager with stonecutter workstation" },
-            { name: "Shepherd", category: "passive", obtain: "Villager with loom workstation" },
-            { name: "Toolsmith", category: "passive", obtain: "Villager with smithing table workstation" },
-            { name: "Weaponsmith", category: "passive", obtain: "Villager with grindstone workstation" },
-            { name: "Nitwit", category: "passive", obtain: "Villager without workstation" },
-            { name: "Zombie Villager", category: "hostile", obtain: "Zombie that infected a villager" },
-            { name: "Wandering Trader", category: "passive", obtain: "Spawns randomly in world" },
-            
-            // GOLEMS
-            { name: "--- GOLEMS ---", category: "section", obtain: "" },
-            { name: "Iron Golem", category: "neutral", obtain: "Spawn in villages or craft with iron + pumpkin" },
-            { name: "Snow Golem", category: "passive", obtain: "Craft with 2 snow blocks + pumpkin" },
-            
-            // UNDEAD HORSES
-            { name: "--- UNDEAD HORSES ---", category: "section", obtain: "" },
-            { name: "Skeleton Horse", category: "passive", obtain: "Rarely spawn during thunderstorms" },
-            { name: "Zombie Horse", category: "passive", obtain: "Creative/commands only" },
-            
-            // RARE STRUCTURES ITEMS
-            { name: "--- STRUCTURE ITEMS ---", category: "section", obtain: "" },
-            { name: "End Portal Frame", category: "blocks", obtain: "Creative mode only (found in strongholds)" },
-            { name: "End Gateway", category: "blocks", obtain: "Creative mode only (appears after dragon fight)" },
-            { name: "Nether Portal", category: "blocks", obtain: "Light obsidian frame with fire" },
-            { name: "Spawner", category: "blocks", obtain: "Use silk touch on mob spawners" },
-            { name: "Command Block", category: "blocks", obtain: "Creative mode only" },
-            { name: "Chain Command Block", category: "blocks", obtain: "Creative mode only" },
-            { name: "Repeating Command Block", category: "blocks", obtain: "Creative mode only" },
-            { name: "Structure Block", category: "blocks", obtain: "Creative mode only" },
-            { name: "Jigsaw Block", category: "blocks", obtain: "Creative mode only" },
-            { name: "Barrier", category: "blocks", obtain: "Creative mode only" },
-            { name: "Light Block", category: "blocks", obtain: "Creative mode only" },
-            { name: "Structure Void", category: "blocks", obtain: "Creative mode only" },
-            
-            // FLOWERS
-            { name: "--- FLOWERS ---", category: "section", obtain: "" },
-            { name: "Dandelion", category: "blocks", obtain: "Find in most biomes" },
-            { name: "Poppy", category: "blocks", obtain: "Find in most biomes" },
-            { name: "Blue Orchid", category: "blocks", obtain: "Find in swamps" },
-            { name: "Allium", category: "blocks", obtain: "Find in flower forests" },
-            { name: "Azure Bluet", category: "blocks", obtain: "Find in most biomes" },
-            { name: "Red Tulip", category: "blocks", obtain: "Find in flower forests" },
-            { name: "Orange Tulip", category: "blocks", obtain: "Find in flower forests" },
-            { name: "White Tulip", category: "blocks", obtain: "Find in flower forests" },
-            { name: "Pink Tulip", category: "blocks", obtain: "Find in flower forests" },
-            { name: "Oxeye Daisy", category: "blocks", obtain: "Find in most biomes" },
-            { name: "Cornflower", category: "blocks", obtain: "Find in flower forests" },
-            { name: "Lily of the Valley", category: "blocks", obtain: "Find in flower forests" },
-            { name: "Wither Rose", category: "blocks", obtain: "Dropped when wither kills a mob" },
-            { name: "Spore Blossom", category: "blocks", obtain: "Find hanging in lush caves" },
-            { name: "Torchflower", category: "blocks", obtain: "Grow from torchflower seeds" },
-            { name: "Pitcher Plant", category: "blocks", obtain: "Grow from pitcher pods" },
-            { name: "Sunflower", category: "blocks", obtain: "Find in sunflower plains" },
-            { name: "Lilac", category: "blocks", obtain: "Find in forest biomes" },
-            { name: "Rose Bush", category: "blocks", obtain: "Find in forest biomes" },
-            { name: "Peony", category: "blocks", obtain: "Find in forest biomes" },
-            { name: "Lily Pad", category: "blocks", obtain: "Find on water in swamps" },
-            
-            // SEEDS AND CROPS
-            { name: "--- SEEDS & CROPS ---", category: "section", obtain: "" },
-            { name: "Torchflower Seeds", category: "items", obtain: "Brush suspicious gravel" },
-            { name: "Pitcher Pod", category: "items", obtain: "Brush suspicious gravel" },
-            { name: "Wheat Seeds", category: "items", obtain: "Break grass or find in chests" },
-            { name: "Beetroot Seeds", category: "items", obtain: "Find in chests or craft from beetroot" },
-            { name: "Melon Seeds", category: "items", obtain: "Craft from melon slice" },
-            { name: "Pumpkin Seeds", category: "items", obtain: "Craft from pumpkin" },
-            { name: "Carrot", category: "items", obtain: "Harvest from villages or zombie drops" },
-            { name: "Potato", category: "items", obtain: "Harvest from villages or zombie drops" },
-            { name: "Poisonous Potato", category: "items", obtain: "Rare drop when harvesting potatoes" },
-            { name: "Sweet Berries", category: "items", obtain: "Harvest from sweet berry bushes" },
-            { name: "Cocoa Beans", category: "items", obtain: "Harvest from jungle trees" },
-            { name: "Nether Wart", category: "items", obtain: "Harvest from Nether fortresses" },
-            
-            // FUNCTIONAL BLOCKS
-            { name: "--- FUNCTIONAL BLOCKS ---", category: "section", obtain: "" },
-            { name: "Crafting Table", category: "blocks", obtain: "Craft with 4 planks" },
-            { name: "Furnace", category: "blocks", obtain: "Craft with 8 cobblestone" },
-            { name: "Blast Furnace", category: "blocks", obtain: "Craft with furnace + 3 iron + 5 smooth stone" },
-            { name: "Smoker", category: "blocks", obtain: "Craft with furnace + 4 logs" },
-            { name: "Brewing Stand", category: "blocks", obtain: "Craft with 3 cobblestone + blaze rod" },
-            { name: "Anvil", category: "blocks", obtain: "Craft with 3 iron blocks + 4 iron ingots" },
-            { name: "Grindstone", category: "blocks", obtain: "Craft with 2 planks + 2 sticks + stone slab" },
-            { name: "Enchanting Table", category: "blocks", obtain: "Craft with book + 2 diamonds + 4 obsidian" },
-            { name: "Bookshelf", category: "blocks", obtain: "Craft with 6 planks + 3 books" },
-            { name: "Lectern", category: "blocks", obtain: "Craft with 4 planks + bookshelf" },
-            { name: "Composter", category: "blocks", obtain: "Craft with 7 wooden slabs" },
-            { name: "Barrel", category: "blocks", obtain: "Craft with 6 planks + 2 slabs" },
-            { name: "Cartography Table", category: "blocks", obtain: "Craft with 4 planks + 2 paper" },
-            { name: "Fletching Table", category: "blocks", obtain: "Craft with 4 planks + 2 flint" },
-            { name: "Smithing Table", category: "blocks", obtain: "Craft with 4 planks + 2 iron ingots" },
-            { name: "Stonecutter", category: "blocks", obtain: "Craft with 3 stone + iron ingot" },
-            { name: "Loom", category: "blocks", obtain: "Craft with 2 planks + 2 string" },
-            { name: "Cauldron", category: "blocks", obtain: "Craft with 7 iron ingots" },
-            { name: "Chest", category: "blocks", obtain: "Craft with 8 planks" },
-            { name: "Trapped Chest", category: "blocks", obtain: "Craft with chest + tripwire hook" },
-            { name: "Ender Chest", category: "blocks", obtain: "Craft with 8 obsidian + ender eye" },
-            { name: "Hopper", category: "blocks", obtain: "Craft with 5 iron ingots + chest" },
-            { name: "Dispenser", category: "blocks", obtain: "Craft with 7 cobblestone + bow + redstone" },
-            { name: "Dropper", category: "blocks", obtain: "Craft with 7 cobblestone + redstone" },
-            { name: "Observer", category: "blocks", obtain: "Craft with 6 cobblestone + 2 redstone + quartz" },
-            { name: "Piston", category: "blocks", obtain: "Craft with 3 planks + 4 cobblestone + iron + redstone" },
-            { name: "Sticky Piston", category: "blocks", obtain: "Craft with piston + slimeball" },
-            { name: "Redstone Lamp", category: "blocks", obtain: "Craft with glowstone + 4 redstone" },
-            { name: "Sea Lantern", category: "blocks", obtain: "Craft with 4 prismarine shards + 5 prismarine crystals" },
-            { name: "Jack o'Lantern", category: "blocks", obtain: "Craft with pumpkin + torch" },
-            { name: "TNT", category: "blocks", obtain: "Craft with 4 sand + 5 gunpowder" },
-            { name: "Note Block", category: "blocks", obtain: "Craft with 8 planks + redstone" },
-            { name: "Jukebox", category: "blocks", obtain: "Craft with 8 planks + diamond" },
-            
-            // ADDITIONAL MOBS
-            { name: "--- ADDITIONAL MOBS ---", category: "section", obtain: "" },
-            { name: "Bogged", category: "hostile", obtain: "Skeleton variant in swamps and mangrove swamps" },
-            { name: "Breeze", category: "hostile", obtain: "Spawn in trial chambers" }
-        ];
-
-        // Initialize progress tracking (using in-memory storage since localStorage isn't available)
+        // Initialize storage
         let obtainedItems = {};
+        let allItems = [];
+
+        // Load complete item list from your document
+        function loadCompleteItemList() {
+            // All 812 blocks from your document
+            const blockList = `Air,Stone,Granite,Polished Granite,Diorite,Polished Diorite,Andesite,Polished Andesite,Deepslate,Cobbled Deepslate,Polished Deepslate,Calcite,Tuff,Tuff Slab,Tuff Stairs,Tuff Wall,Chiseled Tuff,Polished Tuff,Polished Tuff Slab,Polished Tuff Stairs,Polished Tuff Wall,Tuff Bricks,Tuff Brick Slab,Tuff Brick Stairs,Tuff Brick Wall,Chiseled Tuff Bricks,Dripstone Block,Grass Block,Dirt,Coarse Dirt,Podzol,Rooted Dirt,Mud,Crimson Nylium,Warped Nylium,Cobblestone,Oak Planks,Spruce Planks,Birch Planks,Jungle Planks,Acacia Planks,Cherry Planks,Dark Oak Planks,Pale Oak Planks,Mangrove Planks,Bamboo Planks,Crimson Planks,Warped Planks,Bamboo Mosaic,Oak Sapling,Spruce Sapling,Birch Sapling,Jungle Sapling,Acacia Sapling,Cherry Sapling,Dark Oak Sapling,Pale Oak Sapling,Mangrove Propagule,Sand,Suspicious Sand,Suspicious Gravel,Red Sand,Gravel,Coal Ore,Deepslate Coal Ore,Iron Ore,Deepslate Iron Ore,Copper Ore,Deepslate Copper Ore,Gold Ore,Deepslate Gold Ore,Redstone Ore,Deepslate Redstone Ore,Emerald Ore,Deepslate Emerald Ore,Lapis Lazuli Ore,Deepslate Lapis Lazuli Ore,Diamond Ore,Deepslate Diamond Ore,Nether Gold Ore,Nether Quartz Ore,Ancient Debris,Block of Coal,Block of Raw Iron,Block of Raw Copper,Block of Raw Gold,Heavy Core,Block of Amethyst,Block of Iron,Block of Copper,Block of Gold,Block of Diamond,Block of Netherite,Exposed Copper,Weathered Copper,Oxidized Copper,Chiseled Copper,Exposed Chiseled Copper,Weathered Chiseled Copper,Oxidized Chiseled Copper,Cut Copper,Exposed Cut Copper,Weathered Cut Copper,Oxidized Cut Copper,Cut Copper Stairs,Exposed Cut Copper Stairs,Weathered Cut Copper Stairs,Oxidized Cut Copper Stairs,Cut Copper Slab,Exposed Cut Copper Slab,Weathered Cut Copper Slab,Oxidized Cut Copper Slab,Waxed Block of Copper,Waxed Exposed Copper,Waxed Weathered Copper,Waxed Oxidized Copper,Waxed Chiseled Copper,Waxed Exposed Chiseled Copper,Waxed Weathered Chiseled Copper,Waxed Oxidized Chiseled Copper,Waxed Cut Copper,Waxed Exposed Cut Copper,Waxed Weathered Cut Copper,Waxed Oxidized Cut Copper,Waxed Cut Copper Stairs,Waxed Exposed Cut Copper Stairs,Waxed Weathered Cut Copper Stairs,Waxed Oxidized Cut Copper Stairs,Waxed Cut Copper Slab,Waxed Exposed Cut Copper Slab,Waxed Weathered Cut Copper Slab,Waxed Oxidized Cut Copper Slab,Oak Log,Spruce Log,Birch Log,Jungle Log,Acacia Log,Cherry Log,Pale Oak Log,Dark Oak Log,Mangrove Log,Mangrove Roots,Muddy Mangrove Roots,Crimson Stem,Warped Stem,Block of Bamboo,Stripped Oak Log,Stripped Spruce Log,Stripped Birch Log,Stripped Jungle Log,Stripped Acacia Log,Stripped Cherry Log,Stripped Dark Oak Log,Stripped Pale Oak Log,Stripped Mangrove Log,Stripped Crimson Stem,Stripped Warped Stem,Stripped Oak Wood,Stripped Spruce Wood,Stripped Birch Wood,Stripped Jungle Wood,Stripped Acacia Wood,Stripped Cherry Wood,Stripped Dark Oak Wood,Stripped Pale Oak Wood,Stripped Mangrove Wood,Stripped Crimson Hyphae,Stripped Warped Hyphae,Block of Stripped Bamboo,Oak Wood,Spruce Wood,Birch Wood,Jungle Wood,Acacia Wood,Cherry Wood,Pale Oak Wood,Dark Oak Wood,Mangrove Wood,Crimson Hyphae,Warped Hyphae,Oak Leaves,Spruce Leaves,Birch Leaves,Jungle Leaves,Acacia Leaves,Cherry Leaves,Dark Oak Leaves,Pale Oak Leaves,Mangrove Leaves,Azalea Leaves,Flowering Azalea Leaves,Sponge,Wet Sponge,Glass,Tinted Glass,Block of Lapis Lazuli,Sandstone,Chiseled Sandstone,Cut Sandstone,Cobweb,Short Grass,Fern,Bush,Azalea,Flowering Azalea,Dead Bush,Firefly Bush,Short Dry Grass,Tall Dry Grass,Seagrass,Sea Pickle,White Wool,Orange Wool,Magenta Wool,Light Blue Wool,Yellow Wool,Lime Wool,Pink Wool,Gray Wool,Light Gray Wool,Cyan Wool,Purple Wool,Blue Wool,Brown Wool,Green Wool,Red Wool,Black Wool,Dandelion,Open Eyeblossom,Closed Eyeblossom,Poppy,Blue Orchid,Allium,Azure Bluet,Red Tulip,Orange Tulip,White Tulip,Pink Tulip,Oxeye Daisy,Cornflower,Lily of the Valley,Wither Rose,Torchflower,Pitcher Plant,Spore Blossom,Brown Mushroom,Red Mushroom,Crimson Fungus,Warped Fungus,Crimson Roots,Warped Roots,Nether Sprouts,Weeping Vines,Twisting Vines,Sugar Cane,Kelp,Pink Petals,Wildflowers,Leaf Litter,Moss Carpet,Moss Block,Pale Moss Carpet,Pale Hanging Moss,Pale Moss Block,Hanging Roots,Big Dripleaf,Small Dripleaf,Bamboo,Oak Slab,Spruce Slab,Birch Slab,Jungle Slab,Acacia Slab,Cherry Slab,Dark Oak Slab,Pale Oak Slab,Mangrove Slab,Bamboo Slab,Bamboo Mosaic Slab,Crimson Slab,Warped Slab,Stone Slab,Smooth Stone Slab,Sandstone Slab,Cut Sandstone Slab,Cobblestone Slab,Brick Slab,Stone Brick Slab,Mud Brick Slab,Nether Brick Slab,Quartz Slab,Red Sandstone Slab,Cut Red Sandstone Slab,Purpur Slab,Prismarine Slab,Prismarine Brick Slab,Dark Prismarine Slab,Smooth Quartz Block,Smooth Red Sandstone,Smooth Sandstone,Smooth Stone,Bricks,Bookshelf,Chiseled Bookshelf,Decorated Pot,Mossy Cobblestone,Obsidian,Torch,End Rod,Chorus Flower,Purpur Block,Purpur Pillar,Purpur Stairs,Creaking Heart,Chest,Crafting Table,Furnace,Ladder,Cobblestone Stairs,Snow,Ice,Snow Block,Cactus,Cactus Flower,Clay,Jukebox,Oak Fence,Spruce Fence,Birch Fence,Jungle Fence,Acacia Fence,Cherry Fence,Dark Oak Fence,Pale Oak Fence,Mangrove Fence,Bamboo Fence,Crimson Fence,Warped Fence,Pumpkin,Carved Pumpkin,Jack o'Lantern,Netherrack,Soul Sand,Soul Soil,Basalt,Polished Basalt,Smooth Basalt,Soul Torch,Glowstone,Stone Bricks,Mossy Stone Bricks,Cracked Stone Bricks,Chiseled Stone Bricks,Packed Mud,Mud Bricks,Deepslate Bricks,Cracked Deepslate Bricks,Deepslate Tiles,Cracked Deepslate Tiles,Chiseled Deepslate,Brown Mushroom Block,Red Mushroom Block,Mushroom Stem,Iron Bars,Chain,Glass Pane,Melon,Vines,Glow Lichen,Resin Clump,Block of Resin,Resin Bricks,Resin Brick Stairs,Resin Brick Slab,Resin Brick Wall,Chiseled Resin Bricks,Brick Stairs,Stone Brick Stairs,Mud Brick Stairs,Mycelium,Lily Pad,Nether Bricks,Cracked Nether Bricks,Chiseled Nether Bricks,Nether Brick Fence,Nether Brick Stairs,Sculk,Sculk Vein,Sculk Catalyst,Sculk Shrieker,Enchanting Table,End Stone,End Stone Bricks,Dragon Egg,Sandstone Stairs,Ender Chest,Block of Emerald,Oak Stairs,Spruce Stairs,Birch Stairs,Jungle Stairs,Acacia Stairs,Cherry Stairs,Dark Oak Stairs,Pale Oak Stairs,Mangrove Stairs,Bamboo Stairs,Bamboo Mosaic Stairs,Crimson Stairs,Warped Stairs,Beacon,Cobblestone Wall,Mossy Cobblestone Wall,Brick Wall,Prismarine Wall,Red Sandstone Wall,Mossy Stone Brick Wall,Granite Wall,Stone Brick Wall,Mud Brick Wall,Nether Brick Wall,Andesite Wall,Red Nether Brick Wall,Sandstone Wall,End Stone Brick Wall,Diorite Wall,Blackstone Wall,Polished Blackstone Wall,Polished Blackstone Brick Wall,Cobbled Deepslate Wall,Polished Deepslate Wall,Deepslate Brick Wall,Deepslate Tile Wall,Anvil,Chipped Anvil,Damaged Anvil,Chiseled Quartz Block,Block of Quartz,Quartz Bricks,Quartz Pillar,Quartz Stairs,White Terracotta,Orange Terracotta,Magenta Terracotta,Light Blue Terracotta,Yellow Terracotta,Lime Terracotta,Pink Terracotta,Gray Terracotta,Light Gray Terracotta,Cyan Terracotta,Purple Terracotta,Blue Terracotta,Brown Terracotta,Green Terracotta,Red Terracotta,Black Terracotta,Hay Bale,White Carpet,Orange Carpet,Magenta Carpet,Light Blue Carpet,Yellow Carpet,Lime Carpet,Pink Carpet,Gray Carpet,Light Gray Carpet,Cyan Carpet,Purple Carpet,Blue Carpet,Brown Carpet,Green Carpet,Red Carpet,Black Carpet,Terracotta,Packed Ice,Sunflower,Lilac,Rose Bush,Peony,Tall Grass,Large Fern,White Stained Glass,Orange Stained Glass,Magenta Stained Glass,Light Blue Stained Glass,Yellow Stained Glass,Lime Stained Glass,Pink Stained Glass,Gray Stained Glass,Light Gray Stained Glass,Cyan Stained Glass,Purple Stained Glass,Blue Stained Glass,Brown Stained Glass,Green Stained Glass,Red Stained Glass,Black Stained Glass,White Stained Glass Pane,Orange Stained Glass Pane,Magenta Stained Glass Pane,Light Blue Stained Glass Pane,Yellow Stained Glass Pane,Lime Stained Glass Pane,Pink Stained Glass Pane,Gray Stained Glass Pane,Light Gray Stained Glass Pane,Cyan Stained Glass Pane,Purple Stained Glass Pane,Blue Stained Glass Pane,Brown Stained Glass Pane,Green Stained Glass Pane,Red Stained Glass Pane,Black Stained Glass Pane,Prismarine,Prismarine Bricks,Dark Prismarine,Prismarine Stairs,Prismarine Brick Stairs,Dark Prismarine Stairs,Sea Lantern,Red Sandstone,Chiseled Red Sandstone,Cut Red Sandstone,Red Sandstone Stairs,Magma Block,Nether Wart Block,Warped Wart Block,Red Nether Bricks,Bone Block,Shulker Box,White Shulker Box,Orange Shulker Box,Magenta Shulker Box,Light Blue Shulker Box,Yellow Shulker Box,Lime Shulker Box,Pink Shulker Box,Gray Shulker Box,Light Gray Shulker Box,Cyan Shulker Box,Purple Shulker Box,Blue Shulker Box,Brown Shulker Box,Green Shulker Box,Red Shulker Box,Black Shulker Box,White Glazed Terracotta,Orange Glazed Terracotta,Magenta Glazed Terracotta,Light Blue Glazed Terracotta,Yellow Glazed Terracotta,Lime Glazed Terracotta,Pink Glazed Terracotta,Gray Glazed Terracotta,Light Gray Glazed Terracotta,Cyan Glazed Terracotta,Purple Glazed Terracotta,Blue Glazed Terracotta,Brown Glazed Terracotta,Green Glazed Terracotta,Red Glazed Terracotta,Black Glazed Terracotta,White Concrete,Orange Concrete,Magenta Concrete,Light Blue Concrete,Yellow Concrete,Lime Concrete,Pink Concrete,Gray Concrete,Light Gray Concrete,Cyan Concrete,Purple Concrete,Blue Concrete,Brown Concrete,Green Concrete,Red Concrete,Black Concrete,White Concrete Powder,Orange Concrete Powder,Magenta Concrete Powder,Light Blue Concrete Powder,Yellow Concrete Powder,Lime Concrete Powder,Pink Concrete Powder,Gray Concrete Powder,Light Gray Concrete Powder,Cyan Concrete Powder,Purple Concrete Powder,Blue Concrete Powder,Brown Concrete Powder,Green Concrete Powder,Red Concrete Powder,Black Concrete Powder,Turtle Egg,Sniffer Egg,Dead Tube Coral Block,Dead Brain Coral Block,Dead Bubble Coral Block,Dead Fire Coral Block,Dead Horn Coral Block,Tube Coral Block,Brain Coral Block,Bubble Coral Block,Fire Coral Block,Horn Coral Block,Tube Coral,Brain Coral,Bubble Coral,Fire Coral,Horn Coral,Dead Brain Coral,Dead Bubble Coral,Dead Fire Coral,Dead Horn Coral,Dead Tube Coral,Tube Coral Fan,Brain Coral Fan,Bubble Coral Fan,Fire Coral Fan,Horn Coral Fan,Dead Tube Coral Fan,Dead Brain Coral Fan,Dead Bubble Coral Fan,Dead Fire Coral Fan,Dead Horn Coral Fan,Blue Ice,Conduit,Polished Granite Stairs,Smooth Red Sandstone Stairs,Mossy Stone Brick Stairs,Polished Diorite Stairs,Mossy Cobblestone Stairs,End Stone Brick Stairs,Stone Stairs,Smooth Sandstone Stairs,Smooth Quartz Stairs,Granite Stairs,Andesite Stairs,Red Nether Brick Stairs,Polished Andesite Stairs,Diorite Stairs,Cobbled Deepslate Stairs,Polished Deepslate Stairs,Deepslate Brick Stairs,Deepslate Tile Stairs,Polished Granite Slab,Smooth Red Sandstone Slab,Mossy Stone Brick Slab,Polished Diorite Slab,Mossy Cobblestone Slab,End Stone Brick Slab,Smooth Sandstone Slab,Smooth Quartz Slab,Granite Slab,Andesite Slab,Red Nether Brick Slab,Polished Andesite Slab,Diorite Slab,Cobbled Deepslate Slab,Polished Deepslate Slab,Deepslate Brick Slab,Deepslate Tile Slab,Scaffolding,Redstone Dust,Redstone Torch,Block of Redstone,Redstone Repeater,Redstone Comparator,Piston,Sticky Piston,Slime Block,Honey Block,Observer,Hopper,Dispenser,Dropper,Lectern,Target,Lever,Lightning Rod,Daylight Detector,Sculk Sensor,Calibrated Sculk Sensor,Tripwire Hook,Trapped Chest,TNT,Redstone Lamp,Note Block,Stone Button,Polished Blackstone Button,Oak Button,Spruce Button,Birch Button,Jungle Button,Acacia Button,Cherry Button,Dark Oak Button,Pale Oak Button,Mangrove Button,Bamboo Button,Crimson Button,Warped Button,Stone Pressure Plate,Polished Blackstone Pressure Plate,Light Weighted Pressure Plate,Heavy Weighted Pressure Plate,Oak Pressure Plate,Spruce Pressure Plate,Birch Pressure Plate,Jungle Pressure Plate,Acacia Pressure Plate,Cherry Pressure Plate,Dark Oak Pressure Plate,Pale Oak Pressure Plate,Mangrove Pressure Plate,Bamboo Pressure Plate,Crimson Pressure Plate,Warped Pressure Plate,Iron Door,Oak Door,Spruce Door,Birch Door,Jungle Door,Acacia Door,Cherry Door,Dark Oak Door,Pale Oak Door,Mangrove Door,Bamboo Door,Crimson Door,Warped Door,Copper Door,Exposed Copper Door,Weathered Copper Door,Oxidized Copper Door,Waxed Copper Door,Waxed Exposed Copper Door,Waxed Weathered Copper Door,Waxed Oxidized Copper Door,Iron Trapdoor,Oak Trapdoor,Spruce Trapdoor,Birch Trapdoor,Jungle Trapdoor,Acacia Trapdoor,Cherry Trapdoor,Dark Oak Trapdoor,Pale Oak Trapdoor,Mangrove Trapdoor,Bamboo Trapdoor,Crimson Trapdoor,Warped Trapdoor,Copper Trapdoor,Exposed Copper Trapdoor,Weathered Copper Trapdoor,Oxidized Copper Trapdoor,Waxed Copper Trapdoor,Waxed Exposed Copper Trapdoor,Waxed Weathered Copper Trapdoor,Waxed Oxidized Copper Trapdoor,Oak Fence Gate,Spruce Fence Gate,Birch Fence Gate,Jungle Fence Gate,Acacia Fence Gate,Cherry Fence Gate,Dark Oak Fence Gate,Pale Oak Fence Gate,Mangrove Fence Gate,Bamboo Fence Gate,Crimson Fence Gate,Warped Fence Gate,Powered Rail,Detector Rail,Rail,Activator Rail,Saddle,Minecart,Minecart with Chest,Minecart with Furnace,Minecart with TNT,Minecart with Hopper,Carrot on a Stick,Warped Fungus on a Stick,Phantom Membrane,Elytra,Oak Boat,Oak Boat with Chest,Spruce Boat,Spruce Boat with Chest,Birch Boat,Birch Boat with Chest,Jungle Boat,Jungle Boat with Chest,Acacia Boat,Acacia Boat with Chest,Cherry Boat,Cherry Boat with Chest,Dark Oak Boat,Dark Oak Boat with Chest,Pale Oak Boat,Pale Oak Boat with Chest,Mangrove Boat,Mangrove Boat with Chest,Bamboo Raft,Bamboo Raft with Chest,Turtle Shell,Turtle Scute,Armadillo Scute,Wolf Armor`.split(',');
+
+            // All 84 mobs from your list
+            const mobList = `Allay,Armadillo,Axolotl,Bat,Camel,Cat,Chicken,Cod,Cow,Donkey,Fox,Frog,Glow Squid,Horse,Mooshroom,Mule,Ocelot,Parrot,Pig,Pufferfish,Rabbit,Salmon,Sheep,Skeleton Horse,Sniffer,Snow Golem,Squid,Strider,Tadpole,Tropical Fish,Turtle,Villager,Wandering Trader,Bee,Cave Spider,Dolphin,Drowned,Enderman,Goat,Iron Golem,Llama,Piglin,Panda,Polar Bear,Spider,Spider Jockey,Trader Llama,Wolf,Zombified Piglin,Blaze,Bogged,Breeze,Chicken Jockey,Creeper,Elder Guardian,Ender Dragon,Endermite,Evoker,Ghast,Guardian,Hoglin,Hoglin Jockey,Husk,Magma Cube,Phantom,Piglin Brute,Pillager,Ravager,Ravager Jockey,Shulker,Silverfish,Skeleton,Skeleton Horseman,Slime,Stray,Vex,Vindicator,Warden,Witch,Wither,Wither Skeleton,Zoglin,Zombie,Zombie Villager`.split(',');
+
+            // Create complete items list
+            allItems = [];
+            
+            // Add blocks with sections
+            allItems.push({ name: "--- ALL BLOCKS & ITEMS ---", category: "section", obtain: "" });
+            blockList.forEach(block => {
+                allItems.push({ 
+                    name: block.trim(), 
+                    category: "blocks", 
+                    obtain: "See Minecraft wiki for details" 
+                });
+            });
+
+            // Add mobs with sections
+            allItems.push({ name: "--- PASSIVE MOBS ---", category: "section", obtain: "" });
+            const passiveMobs = mobList.slice(0, 33);
+            passiveMobs.forEach(mob => {
+                allItems.push({ 
+                    name: mob.trim(), 
+                    category: "passive", 
+                    obtain: "Spawn naturally in appropriate biomes" 
+                });
+            });
+
+            allItems.push({ name: "--- NEUTRAL MOBS ---", category: "section", obtain: "" });
+            const neutralMobs = mobList.slice(33, 49);
+            neutralMobs.forEach(mob => {
+                allItems.push({ 
+                    name: mob.trim(), 
+                    category: "neutral", 
+                    obtain: "Spawn naturally, behavior varies" 
+                });
+            });
+
+            allItems.push({ name: "--- HOSTILE MOBS ---", category: "section", obtain: "" });
+            const hostileMobs = mobList.slice(49, 84);
+            hostileMobs.forEach(mob => {
+                allItems.push({ 
+                    name: mob.trim(), 
+                    category: "hostile", 
+                    obtain: "Spawn in appropriate conditions" 
+                });
+            });
+
+            allItems.push({ name: "--- BOSS MOBS ---", category: "section", obtain: "" });
+            allItems.push({ 
+                name: "Ender Dragon", 
+                category: "boss", 
+                obtain: "Found in The End dimension" 
+            });
+            allItems.push({ 
+                name: "Wither", 
+                category: "boss", 
+                obtain: "Summon with 4 soul sand + 3 wither skeleton skulls" 
+            });
+            allItems.push({ 
+                name: "Elder Guardian", 
+                category: "boss", 
+                obtain: "Found in ocean monuments" 
+            });
+        }
 
         function initializeTable() {
+            loadCompleteItemList();
+            
             const tbody = document.getElementById('itemsTableBody');
             tbody.innerHTML = '';
             
-            gameItems.forEach((item, index) => {
-                const row = document.createElement('tr');
+            // Add items in efficient batches
+            let batchSize = 100;
+            let currentIndex = 0;
+            
+            function addBatch() {
+                let fragment = document.createDocumentFragment();
+                let endIndex = Math.min(currentIndex + batchSize, allItems.length);
                 
-                if (item.category === 'section') {
-                    row.className = 'section-header';
-                    row.innerHTML = `
-                        <td colspan="4">${item.name}</td>
-                    `;
-                } else {
-                    if (obtainedItems[item.name]) {
-                        row.className = 'obtained';
+                for (let i = currentIndex; i < endIndex; i++) {
+                    const item = allItems[i];
+                    const row = document.createElement('tr');
+                    
+                    if (item.category === 'section') {
+                        row.className = 'section-header';
+                        row.innerHTML = `<td colspan="4">${item.name}</td>`;
+                    } else {
+                        const isObtained = obtainedItems[item.name] || false;
+                        
+                        if (isObtained) {
+                            row.className = 'obtained';
+                        }
+                        
+                        const safeItemName = item.name.replace(/'/g, "&#39;");
+                        row.innerHTML = `
+                            <td class="checkbox-cell">
+                                <input type="checkbox" ${isObtained ? 'checked' : ''} 
+                                       onchange="toggleObtained('${safeItemName}', this.checked)">
+                            </td>
+                            <td><strong>${item.name}</strong></td>
+                            <td><span class="category ${item.category}">${item.category}</span></td>
+                            <td class="how-to-obtain">${item.obtain}</td>
+                        `;
                     }
                     
-                    row.innerHTML = `
-                        <td class="checkbox-cell">
-                            <input type="checkbox" ${obtainedItems[item.name] ? 'checked' : ''} 
-                                   onchange="toggleObtained('${item.name}', this.checked)">
-                        </td>
-                        <td><strong>${item.name}</strong></td>
-                        <td><span class="category ${item.category}">${item.category}</span></td>
-                        <td class="how-to-obtain">${item.obtain}</td>
-                    `;
+                    fragment.appendChild(row);
                 }
                 
-                tbody.appendChild(row);
-            });
+                tbody.appendChild(fragment);
+                currentIndex = endIndex;
+                
+                if (currentIndex < allItems.length) {
+                    setTimeout(addBatch, 5);
+                } else {
+                    updateStats();
+                }
+            }
             
-            updateStats();
+            addBatch();
         }
 
         function toggleObtained(itemName, isObtained) {
+            const decodedName = itemName.replace(/&#39;/g, "'");
+            
             if (isObtained) {
-                obtainedItems[itemName] = true;
+                obtainedItems[decodedName] = true;
             } else {
-                delete obtainedItems[itemName];
+                delete obtainedItems[decodedName];
             }
             
-            // Note: Progress is stored in memory only during this session
+            // Store in memory only - no localStorage
             updateStats();
             
-            // Update row appearance
             const rows = document.querySelectorAll('#itemsTableBody tr');
             rows.forEach(row => {
                 const nameCell = row.querySelector('td:nth-child(2) strong');
-                if (nameCell && nameCell.textContent === itemName) {
+                if (nameCell && nameCell.textContent === decodedName) {
                     if (isObtained) {
                         row.className = 'obtained';
                     } else {
@@ -1073,15 +445,15 @@
         }
 
         function updateStats() {
-            const blocks = gameItems.filter(item => item.category === 'blocks').length;
-            const mobs = gameItems.filter(item => ['passive', 'hostile', 'neutral', 'boss'].includes(item.category)).length;
-            const items = gameItems.filter(item => item.category === 'items').length;
-            const total = gameItems.filter(item => item.category !== 'section').length;
+            if (!allItems.length) return;
+            
+            const blocks = allItems.filter(item => item.category === 'blocks').length;
+            const mobs = allItems.filter(item => ['passive', 'hostile', 'neutral', 'boss'].includes(item.category)).length;
+            const total = allItems.filter(item => item.category !== 'section').length;
             const obtained = Object.keys(obtainedItems).length;
             
             document.getElementById('totalBlocks').textContent = blocks;
             document.getElementById('totalMobs').textContent = mobs;
-            document.getElementById('totalItems').textContent = items;
             document.getElementById('totalObtained').textContent = obtained;
             document.getElementById('totalCount').textContent = total;
             
@@ -1093,7 +465,6 @@
         function filterItems() {
             const searchTerm = document.getElementById('searchBox').value.toLowerCase();
             const categoryFilter = document.getElementById('categoryFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
             
             const rows = document.querySelectorAll('#itemsTableBody tr');
             
@@ -1105,34 +476,19 @@
                 
                 const nameCell = row.querySelector('td:nth-child(2)');
                 const categoryCell = row.querySelector('td:nth-child(3) .category');
-                const checkbox = row.querySelector('input[type="checkbox"]');
                 
-                if (!nameCell || !categoryCell || !checkbox) return;
+                if (!nameCell || !categoryCell) return;
                 
                 const itemName = nameCell.textContent.toLowerCase();
                 const itemCategory = categoryCell.textContent;
-                const isObtained = checkbox.checked;
                 
                 let show = true;
                 
-                // Search filter
                 if (searchTerm && !itemName.includes(searchTerm)) {
                     show = false;
                 }
                 
-                // Category filter
-                if (categoryFilter !== 'all') {
-                    if (categoryFilter === 'mobs' && !['passive', 'hostile', 'neutral', 'boss'].includes(itemCategory)) {
-                        show = false;
-                    } else if (categoryFilter !== 'mobs' && categoryFilter !== itemCategory) {
-                        show = false;
-                    }
-                }
-                
-                // Status filter
-                if (statusFilter === 'obtained' && !isObtained) {
-                    show = false;
-                } else if (statusFilter === 'not-obtained' && isObtained) {
+                if (categoryFilter !== 'all' && categoryFilter !== itemCategory) {
                     show = false;
                 }
                 
@@ -1143,7 +499,7 @@
         function copyToClipboard() {
             const csvData = generateCSV();
             navigator.clipboard.writeText(csvData).then(() => {
-                alert('CSV data copied to clipboard! You can now paste it into Google Sheets.');
+                alert('All 896 items copied to clipboard!');
             });
         }
 
@@ -1153,7 +509,7 @@
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'minecraft_collection_tracker.csv';
+            a.download = 'minecraft_complete_896_items.csv';
             a.click();
             window.URL.revokeObjectURL(url);
         }
@@ -1161,7 +517,7 @@
         function generateCSV() {
             let csv = 'Obtained,Item Name,Category,How to Obtain\n';
             
-            gameItems.forEach(item => {
+            allItems.forEach(item => {
                 if (item.category !== 'section') {
                     const isObtained = obtainedItems[item.name] ? 'TRUE' : 'FALSE';
                     const name = `"${item.name.replace(/"/g, '""')}"`;
@@ -1175,62 +531,55 @@
         }
 
         function resetProgress() {
-            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+            if (confirm('Reset all 896 items? This cannot be undone.')) {
                 obtainedItems = {};
                 
-                // Uncheck all checkboxes
                 const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = false;
-                });
+                checkboxes.forEach(checkbox => checkbox.checked = false);
                 
-                // Remove obtained class from rows
                 const rows = document.querySelectorAll('#itemsTableBody tr');
-                rows.forEach(row => {
-                    row.classList.remove('obtained');
-                });
+                rows.forEach(row => row.classList.remove('obtained'));
                 
                 updateStats();
-                alert('Progress reset successfully!');
+                alert('All progress reset!');
             }
         }
 
         function markAllObtained() {
-            if (confirm('Mark all items as obtained? This will check every item in the list.')) {
-                gameItems.forEach(item => {
+            if (confirm('Mark all 896 items as obtained?')) {
+                allItems.forEach(item => {
                     if (item.category !== 'section') {
                         obtainedItems[item.name] = true;
                     }
                 });
                 
-                // Check all checkboxes
                 const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = true;
-                });
+                checkboxes.forEach(checkbox => checkbox.checked = true);
                 
-                // Add obtained class to all rows
                 const rows = document.querySelectorAll('#itemsTableBody tr:not(.section-header)');
-                rows.forEach(row => {
-                    row.classList.add('obtained');
-                });
+                rows.forEach(row => row.classList.add('obtained'));
                 
                 updateStats();
-                alert('All items marked as obtained!');
+                alert('All 896 items marked as obtained!');
             }
         }
 
-        function showGoogleSheetsInstructions() {
-            const instructions = document.getElementById('instructions');
-            if (instructions) {
-                instructions.style.display = instructions.style.display === 'none' ? 'block' : 'none';
-            }
+        function loadProgress() {
+            // Initialize with empty progress (no localStorage)
+            obtainedItems = {};
         }
 
-        // Initialize the table when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        function initialize() {
+            loadProgress();
             initializeTable();
-        });
+        }
+
+        // Initialize when ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initialize);
+        } else {
+            initialize();
+        }
     </script>
 </body>
 </html>
